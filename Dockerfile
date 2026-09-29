@@ -1,14 +1,5 @@
-FROM node:20-slim AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY tsconfig.json ./
-COPY src/ ./src/
-RUN npm run build
+FROM oven/bun:1-slim
 
-FROM node:20-slim
-
-# Install system tools needed by shell/network tools
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -23,18 +14,18 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install --omit=dev
+COPY package.json bun.lock* ./
+RUN bun install --frozen-lockfile --production
 
-COPY --from=builder /app/dist ./dist/
+COPY tsconfig.json ./
+COPY src/ ./src/
 
 EXPOSE 3000
 
-# Non-root user for safety
 RUN useradd -m mcpuser && \
     mkdir -p /host-home && \
     chown -R mcpuser /app /host-home
 
 USER mcpuser
 
-CMD ["node", "dist/server.js"]
+CMD ["bun", "src/server.ts"]

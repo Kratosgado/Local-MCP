@@ -18,10 +18,7 @@ bun install
 cp .env.example .env
 # Edit .env — set MCP_AUTH_TOKEN and PUBLIC_URL (see Environment Variables)
 
-# 3. Build
-bun run build
-
-# 4. Start
+# 3. Start (bun runs TypeScript directly, no build step needed)
 bun start
 ```
 
