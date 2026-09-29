@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import type { Response } from "express";
+import { config } from "../config.js";
 import type { OAuthServerProvider } from "@modelcontextprotocol/sdk/server/auth/provider.js";
 import type { OAuthRegisteredClientsStore } from "@modelcontextprotocol/sdk/server/auth/clients.js";
 import type {
@@ -164,6 +165,17 @@ export class SimpleOAuthProvider implements OAuthServerProvider {
   }
 
   async verifyAccessToken(token: string): Promise<AuthInfo> {
+    // Static bearer token for non-OAuth clients (matches MCP_AUTH_TOKEN).
+    // Documented in the README but never implemented — until now.
+    if (config.authToken && token === config.authToken) {
+      return {
+        token,
+        clientId: "static-token",
+        scopes: ["mcp:tools"],
+        expiresAt: Math.floor(Date.now() / 1000) + 3600,
+      };
+    }
+
     const stored = this.tokens.get(token);
     if (!stored) throw new Error("Invalid access token");
     if (stored.expiresAt < Math.floor(Date.now() / 1000)) {
