@@ -5,3 +5,4 @@ dist/
 *.tsbuildinfo
 logs/
 .DS_Store
+.nvim-workspace.json
